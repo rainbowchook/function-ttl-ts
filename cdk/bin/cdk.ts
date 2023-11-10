@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import 'source-map-support/register';
 import * as cdk from 'aws-cdk-lib';
-import { FunctionTTLGoStack } from '../lib/cdk-stack';
+import { FunctionTTLProcessingStack } from '../lib/cdk-stack';
 
 const app = new cdk.App();
-new FunctionTTLGoStack(app, 'FunctionTTLGoStack', {
+new FunctionTTLProcessingStack(app, 'FunctionTTLProcessingStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */

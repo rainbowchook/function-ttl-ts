@@ -5,7 +5,7 @@ import { LambdaRole } from './lambda-role'
 import { LambdaFn } from './lambda-function'
 import { Alarm, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch'
 
-export class FunctionTTLGoStack extends Stack {
+export class FunctionTTLProcessingStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props)
 
@@ -16,7 +16,10 @@ export class FunctionTTLGoStack extends Stack {
     const { role } = new LambdaRole(this, 'LambdaRole')
     
     // create the lambda
-    const { lambdaFunction } = new LambdaFn(this, 'LambdaFunction', { role })
+    const { lambdaFunction } = new LambdaFn(this, 'LambdaFunction', { role, table })
+    
+    // grant permissions to principal to DescribeStream, GetRecords, GetShardIterator, ListStreams
+    table.grantStreamRead(lambdaFunction)
 
     // create the CloudWatch alarm on lambda timeout
     if(lambdaFunction.timeout) {
