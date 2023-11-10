@@ -6,9 +6,9 @@ export class DynamoDB extends Construct {
   public readonly table: ITable
   constructor(scope: Construct, id: string) {
     super(scope, id)
-
+    const tableName = 'TTLTable'
     const table = new Table(this, 'TestDynamoDBTable', {
-      tableName: 'TTLTable',
+      tableName,
       partitionKey: {
         name: 'id',
         type: AttributeType.STRING
