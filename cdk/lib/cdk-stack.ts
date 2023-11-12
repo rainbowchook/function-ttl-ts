@@ -17,7 +17,7 @@ export class FunctionTTLProcessingStack extends Stack {
     const { s3Bucket } = new ResultsS3Bucket(this, 'ReportS3Bucket')
 
     // create the lambda service execution role
-    const { role } = new LambdaRole(this, 'LambdaRole')
+    const { role } = new LambdaRole(this, 'LambdaRole', { s3Bucket })
 
     // create the lambda
     const { lambdaFunction } = new LambdaFn(this, 'LambdaFunction', {
@@ -41,5 +41,7 @@ export class FunctionTTLProcessingStack extends Stack {
         alarmName: 'lambda-timeout-alarm',
       })
     }
+
+
   }
 }
