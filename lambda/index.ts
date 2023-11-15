@@ -8,6 +8,8 @@ const s3 = new aws.S3()
 
 const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
   for (const record of event.Records) {
+    console.log('Stream record: ', JSON.stringify(record, null, 2))
+    
     if (record.eventName === 'REMOVE') {
       const item = aws.DynamoDB.Converter.unmarshall(
         record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
@@ -28,7 +30,7 @@ const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
 }
 
 const putRecordInS3 = async (item: { [key: string]: any }) => {
-  const bucketName = 'test-bucket'
+  const bucketName = process.env.BUCKET_NAME as string
   const key = `records/${item.id}.json`
   const body = JSON.stringify(item)
 
@@ -40,7 +42,7 @@ const putRecordInS3 = async (item: { [key: string]: any }) => {
 
   try {
     await s3.putObject(params).promise()
-    console.log(`Record for item iwth ID ${item.id} has been put into S3`)
+    console.log(`Record for item with ID ${item.id} has been put into S3`)
   } catch (error) {
     console.error(`Error putting record into S3 bucket ${bucketName}: ${error}`)
   }

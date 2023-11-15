@@ -1,14 +1,19 @@
 import * as path from 'node:path'
 
-import { Construct } from "constructs";
-import { Role } from "aws-cdk-lib/aws-iam";
-import { Function, Runtime, Code, Architecture } from "aws-cdk-lib/aws-lambda";
-import { Duration } from 'aws-cdk-lib';
-import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { Construct } from 'constructs'
+import { Role } from 'aws-cdk-lib/aws-iam'
+import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda'
+import { Duration } from 'aws-cdk-lib'
+import { ITable } from 'aws-cdk-lib/aws-dynamodb'
+import { Bucket } from 'aws-cdk-lib/aws-s3'
 
 export class LambdaFn extends Construct {
   public readonly lambdaFunction: Function
-  constructor(scope: Construct, id: string, resources: {role: Role, table: ITable}) {
+  constructor(
+    scope: Construct,
+    id: string,
+    resources: { role: Role, table: ITable, s3Bucket: Bucket }
+  ) {
     super(scope, id)
 
     const lambdaFunction = new Function(this, 'Lambda', {
@@ -17,14 +22,15 @@ export class LambdaFn extends Construct {
       code: Code.fromAsset(path.join(__dirname, '../../lambda')),
       handler: 'index.handler',
       // runtime: Runtime.PROVIDED_AL2023,
-      // code: Code.fromAsset(path.join(__dirname, '../cmd/lambda/lambda-main')),
+      // code: Code.fromAsset(path.join(__dirname, '../cmd/lambda/bootstrap.zip')),
       // architecture: Architecture.X86_64,
-      // handler: '',
+      // handler: 'bootstrap',
       role: resources.role,
       timeout: Duration.seconds(60),
       environment: {
-        DYNAMODB_TABLE_NAME: resources.table.tableName
-      }
+        DYNAMODB_TABLE_NAME: resources.table.tableName,
+        BUCKET_NAME: resources.s3Bucket.bucketName
+      },
     })
 
     this.lambdaFunction = lambdaFunction

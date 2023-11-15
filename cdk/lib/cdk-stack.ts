@@ -23,6 +23,7 @@ export class FunctionTTLProcessingStack extends Stack {
     const { lambdaFunction } = new LambdaFn(this, 'LambdaFunction', {
       role,
       table,
+      s3Bucket
     })
 
     // grant permissions to principal to DescribeStream, GetRecords, GetShardIterator, ListStreams
@@ -42,6 +43,6 @@ export class FunctionTTLProcessingStack extends Stack {
       })
     }
 
-
+    // output the
   }
 }
