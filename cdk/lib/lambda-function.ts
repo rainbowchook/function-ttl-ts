@@ -3,9 +3,10 @@ import * as path from 'node:path'
 import { Construct } from 'constructs'
 import { Role } from 'aws-cdk-lib/aws-iam'
 import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda'
-import { Duration } from 'aws-cdk-lib'
+import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { ITable } from 'aws-cdk-lib/aws-dynamodb'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
+import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 
 export class LambdaFn extends Construct {
   public readonly lambdaFunction: Function
@@ -16,8 +17,9 @@ export class LambdaFn extends Construct {
   ) {
     super(scope, id)
 
+    const functionName = 'handle-ttl-lambda'
     const lambdaFunction = new Function(this, 'Lambda', {
-      functionName: 'handle-ttl-lambda',
+      functionName,
       runtime: Runtime.NODEJS_16_X,
       code: Code.fromAsset(path.join(__dirname, '../../lambda')),
       handler: 'index.handler',
