@@ -1,12 +1,12 @@
 import * as aws from 'aws-sdk'
-import { DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda'
+import { Handler, DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 
 // Can use docClient to put a record back into DynamoDB on processing TTL event
 // const docClient = new aws.DynamoDB.DocumentClient()
 const s3 = new aws.S3()
 
-const handler = async (event: DynamoDBStreamEvent): Promise<string> => {
+const handler: Handler = async (event: DynamoDBStreamEvent): Promise<string> => {
   for (const record of event.Records) {
     console.log('Stream record: ', JSON.stringify(record, null, 2))
     

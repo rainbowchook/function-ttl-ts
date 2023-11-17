@@ -7,6 +7,12 @@ import { Alarm, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch'
 import { ResultsS3Bucket } from './s3-bucket'
 import { FilterPattern, LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
 import { LambdaDestination } from 'aws-cdk-lib/aws-logs-destinations'
+import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
+import {
+  FilterCriteria,
+  FilterRule,
+  StartingPosition,
+} from 'aws-cdk-lib/aws-lambda'
 
 export class FunctionTTLProcessingStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -25,11 +31,30 @@ export class FunctionTTLProcessingStack extends Stack {
     const { lambdaFunction } = new LambdaFn(this, 'LambdaFunction', {
       role,
       table,
-      s3Bucket
+      s3Bucket,
     })
 
     // grant permissions to principal to DescribeStream, GetRecords, GetShardIterator, ListStreams
     table.grantStreamRead(lambdaFunction)
+
+    // use the DynamoDB stream as an event source for AWS Lambda
+    lambdaFunction.addEventSource(
+      new DynamoEventSource(table, {
+        batchSize: 5,
+        startingPosition: StartingPosition.TRIM_HORIZON,
+        retryAttempts: 10,
+        filters: [
+          // FilterCriteria.filter({ eventName: FilterRule.isEqual('REMOVE') }),
+          FilterCriteria.filter({
+            userIdentity: {
+              type: FilterRule.isEqual('Service'),
+              principalId: FilterRule.isEqual('dynamodb.amazonaws.com'),
+            },
+          }),
+        ],
+        // filters: [FilterCriteria.filter({ eventName: FilterRule.isEqual('REMOVE')})]
+      })
+    )
 
     // create the CloudWatch alarm on lambda timeout
     if (lambdaFunction.timeout) {
@@ -44,21 +69,21 @@ export class FunctionTTLProcessingStack extends Stack {
         alarmName: 'lambda-timeout-alarm',
       })
     }
-    
+
     // create log group and indicate retention period
     const lambdaLogGroup = new LogGroup(this, 'TTLLogGroup', {
       logGroupName: `/aws/lambda/platform/${lambdaFunction.functionName}`,
       retention: 5 as RetentionDays,
-      removalPolicy: RemovalPolicy.DESTROY
+      removalPolicy: RemovalPolicy.DESTROY,
     })
     lambdaLogGroup.addSubscriptionFilter('LambdaLogGroupSubscription', {
       destination: new LambdaDestination(lambdaFunction),
-      filterPattern: FilterPattern.allEvents()
+      filterPattern: FilterPattern.allEvents(),
     })
 
     // output the Lambda function name
-    new CfnOutput(this, 'TTLLambdaOutput', {
-      value: lambdaFunction.functionArn
+    new CfnOutput(this, 'TTLProcessingLambdaOutput', {
+      value: lambdaFunction.functionArn,
     })
   }
 }

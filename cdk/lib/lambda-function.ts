@@ -13,15 +13,15 @@ export class LambdaFn extends Construct {
   constructor(
     scope: Construct,
     id: string,
-    resources: { role: Role, table: ITable, s3Bucket: Bucket }
+    resources: { role: Role; table: ITable; s3Bucket: Bucket }
   ) {
     super(scope, id)
 
-    const functionName = 'handle-ttl-lambda'
+    const functionName = 'ProcessDynamoDBTTLRecords'
     const lambdaFunction = new Function(this, 'Lambda', {
       functionName,
       runtime: Runtime.NODEJS_16_X,
-      code: Code.fromAsset(path.join(__dirname, '../../lambda')),
+      code: Code.fromAsset(path.join(__dirname, '../../lambda/build')),
       handler: 'index.handler',
       // runtime: Runtime.PROVIDED_AL2023,
       // code: Code.fromAsset(path.join(__dirname, '../cmd/lambda/bootstrap.zip')),
@@ -31,7 +31,7 @@ export class LambdaFn extends Construct {
       timeout: Duration.seconds(60),
       environment: {
         DYNAMODB_TABLE_NAME: resources.table.tableName,
-        BUCKET_NAME: resources.s3Bucket.bucketName
+        BUCKET_NAME: resources.s3Bucket.bucketName,
       },
     })
 
