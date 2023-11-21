@@ -2,14 +2,15 @@ import * as path from 'node:path'
 
 import { Construct } from 'constructs'
 import { Role } from 'aws-cdk-lib/aws-iam'
-import { Function, Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda'
+import { Runtime, Code, Architecture } from 'aws-cdk-lib/aws-lambda'
 import { Duration, RemovalPolicy } from 'aws-cdk-lib'
 import { ITable } from 'aws-cdk-lib/aws-dynamodb'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
+import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
 
 export class LambdaFn extends Construct {
-  public readonly lambdaFunction: Function
+  public readonly lambdaFunction: NodejsFunction
   constructor(
     scope: Construct,
     id: string,
@@ -18,18 +19,23 @@ export class LambdaFn extends Construct {
     super(scope, id)
 
     const functionName = 'ProcessDynamoDBTTLRecords'
-    const lambdaFunction = new Function(this, 'Lambda', {
+    const lambdaFunction = new NodejsFunction(this, 'Lambda', {
       functionName,
       runtime: Runtime.NODEJS_16_X,
-      code: Code.fromAsset(path.join(__dirname, '../../lambda/build')),
-      handler: 'index.handler',
-      // runtime: Runtime.PROVIDED_AL2023,
-      // code: Code.fromAsset(path.join(__dirname, '../cmd/lambda/bootstrap.zip')),
-      // architecture: Architecture.X86_64,
-      // handler: 'bootstrap',
+      entry: path.join(__dirname, '../lambda/index.ts'),
+      handler: 'handler',
+      bundling: {
+        sourceMap: true,
+        minify: true,
+        externalModules: [
+          'aws-sdk'
+        ]
+      },
+      description: 'DynamoDB TTL Processing Lambda',
       role: resources.role,
       timeout: Duration.seconds(60),
       environment: {
+        NODE_OPTIONS: '--enabled-source-maps',
         DYNAMODB_TABLE_NAME: resources.table.tableName,
         BUCKET_NAME: resources.s3Bucket.bucketName,
       },

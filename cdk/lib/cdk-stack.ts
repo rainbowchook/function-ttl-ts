@@ -81,6 +81,18 @@ export class FunctionTTLProcessingStack extends Stack {
       filterPattern: FilterPattern.allEvents(),
     })
 
+    //output the DynamoDB table name
+    new CfnOutput(this, 'DynamoDBTableName', {
+      value: table.tableName,
+      description: 'DynamoDB Table with TTL attribute',
+    })
+
+    //output the S3 bucket name
+    new CfnOutput(this, 'S3BucketName', {
+      value: s3Bucket.bucketName,
+      description: 'S3 Bucket name',
+    })
+
     // output the Lambda function name
     new CfnOutput(this, 'TTLProcessingLambdaOutput', {
       value: lambdaFunction.functionArn,
