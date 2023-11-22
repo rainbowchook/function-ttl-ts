@@ -36,12 +36,6 @@ export class LambdaRole extends Construct {
       },
     })
 
-    // role.attachInlinePolicy(
-    //   new Policy(this, 'lambdaPolicy', {
-    //     statements: [customS3Policy],
-    //   })
-    // )
-
     this.role = role
   }
 }

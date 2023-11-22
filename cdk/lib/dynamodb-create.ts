@@ -20,7 +20,7 @@ export class DynamoDB extends Construct {
         type: AttributeType.STRING,
       },
       billingMode: BillingMode.PAY_PER_REQUEST,
-      removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
+      removalPolicy: RemovalPolicy.DESTROY, // use RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE in production
       stream: StreamViewType.NEW_AND_OLD_IMAGES,
       timeToLiveAttribute: 'ttl',
     })

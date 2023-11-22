@@ -52,7 +52,6 @@ export class FunctionTTLProcessingStack extends Stack {
             },
           }),
         ],
-        // filters: [FilterCriteria.filter({ eventName: FilterRule.isEqual('REMOVE')})]
       })
     )
 
@@ -80,6 +79,8 @@ export class FunctionTTLProcessingStack extends Stack {
       destination: new LambdaDestination(lambdaFunction),
       filterPattern: FilterPattern.allEvents(),
     })
+
+    // lambdaLogGroup.grantWrite(lambdaFunction)
 
     //output the DynamoDB table name
     new CfnOutput(this, 'DynamoDBTableName', {

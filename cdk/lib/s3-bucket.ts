@@ -10,7 +10,7 @@ export class ResultsS3Bucket extends Construct {
     const s3Bucket = new Bucket(this, 'ProjectS3Bucket', {
       bucketName,
       eventBridgeEnabled: true,
-      removalPolicy: RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE,
+      removalPolicy: RemovalPolicy.DESTROY, // Use RemovalPolicy.RETAIN_ON_UPDATE_OR_DELETE in production
       versioned: false,
       encryption: BucketEncryption.S3_MANAGED,
     })
