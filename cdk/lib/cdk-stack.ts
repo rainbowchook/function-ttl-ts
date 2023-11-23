@@ -47,7 +47,7 @@ export class FunctionTTLProcessingStack extends Stack {
           // FilterCriteria.filter({ eventName: FilterRule.isEqual('REMOVE') }),
           FilterCriteria.filter({
             userIdentity: {
-              type: FilterRule.isEqual('Service'),
+              type: FilterRule.isEqual('service'),
               principalId: FilterRule.isEqual('dynamodb.amazonaws.com'),
             },
           }),
