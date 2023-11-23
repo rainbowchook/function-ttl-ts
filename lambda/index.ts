@@ -2,18 +2,16 @@ import * as aws from 'aws-sdk'
 import { Handler, DynamoDBStreamEvent, DynamoDBRecord } from 'aws-lambda'
 import { PutObjectRequest } from 'aws-sdk/clients/s3'
 
-// Can use docClient to put a record back into DynamoDB on processing TTL event
-// const docClient = new aws.DynamoDB.DocumentClient()
 const s3 = new aws.S3()
 
-const handler: Handler = async (
+export const handler: Handler = async (
   event: DynamoDBStreamEvent
 ): Promise<string> => {
   console.log('Stream event: ', JSON.stringify(event, null, 2))
   for (const record of event.Records) {
     console.log('Stream record: ', JSON.stringify(record, null, 2))
 
-    if (record.eventName === 'REMOVE') {
+    if (record.eventName === 'REMOVE' && record.userIdentity) {
       const item = aws.DynamoDB.Converter.unmarshall(
         record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
       )
@@ -50,5 +48,3 @@ const putRecordInS3 = async (item: { [key: string]: any }) => {
     console.error(`Error putting record into S3 bucket ${bucketName}: ${error}`)
   }
 }
-
-export default handler

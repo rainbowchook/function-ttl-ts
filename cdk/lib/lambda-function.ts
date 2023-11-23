@@ -7,6 +7,7 @@ import { Duration } from 'aws-cdk-lib'
 import { ITable } from 'aws-cdk-lib/aws-dynamodb'
 import { Bucket } from 'aws-cdk-lib/aws-s3'
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs'
+import { RetentionDays } from 'aws-cdk-lib/aws-logs'
 
 export class LambdaFn extends Construct {
   public readonly lambdaFunction: NodejsFunction
@@ -30,6 +31,7 @@ export class LambdaFn extends Construct {
       description: 'DynamoDB TTL Processing Lambda',
       role: resources.role,
       timeout: Duration.seconds(60),
+      logRetention: 5 as RetentionDays,
       environment: {
         NODE_OPTIONS: '--enable-source-maps',
         DYNAMODB_TABLE_NAME: resources.table.tableName,

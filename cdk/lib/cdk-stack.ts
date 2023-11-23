@@ -69,19 +69,6 @@ export class FunctionTTLProcessingStack extends Stack {
       })
     }
 
-    // create log group and indicate retention period
-    const lambdaLogGroup = new LogGroup(this, 'TTLLogGroup', {
-      logGroupName: `/aws/lambda/platform/${lambdaFunction.functionName}`,
-      retention: 5 as RetentionDays,
-      removalPolicy: RemovalPolicy.DESTROY,
-    })
-    lambdaLogGroup.addSubscriptionFilter('LambdaLogGroupSubscription', {
-      destination: new LambdaDestination(lambdaFunction),
-      filterPattern: FilterPattern.allEvents(),
-    })
-
-    // lambdaLogGroup.grantWrite(lambdaFunction)
-
     //output the DynamoDB table name
     new CfnOutput(this, 'DynamoDBTableName', {
       value: table.tableName,

@@ -11,7 +11,10 @@ export const handler: Handler = async (
   for (const record of event.Records) {
     console.log('Stream record: ', JSON.stringify(record, null, 2))
 
-    if (record.eventName === 'REMOVE' && record.userIdentity.principalId === 'dynamodb.amazonaws.com' && record.userIdentity.type === 'service') {
+    if (
+      record.eventName === 'REMOVE' &&
+      record.userIdentity 
+    ) {
       const item = aws.DynamoDB.Converter.unmarshall(
         record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
       )
@@ -48,5 +51,3 @@ const putRecordInS3 = async (item: { [key: string]: any }) => {
     console.error(`Error putting record into S3 bucket ${bucketName}: ${error}`)
   }
 }
-
-export default handler
