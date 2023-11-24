@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`FunctionTTLProcessingStack Resources created matches the snapshot 1`] = `
+exports[`FunctionTTLProcessingStack resources created Resources created matches the snapshot 1`] = `
 {
   "Outputs": {
     "DynamoDBTableName": {
