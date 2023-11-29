@@ -23,7 +23,7 @@ jobs:
       run: |
         cd cdk
         npm ci && npm cache clean --force
-        npm run test
+        npm run test -- -u
 
     - name: Build with TypeScript
       env: 
