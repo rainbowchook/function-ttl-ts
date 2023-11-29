@@ -1,6 +1,6 @@
 # function-ttl-ts
 
-![Deploy CDK](https://github.com/rainbowchook/function-ttl-ts/blob/main/.github/workflows/aws-cdk-lambda.yml/badge.svg)
+![Deploy CDK](https://github.com/rainbowchook/function-ttl-ts/actions/workflows/aws-cdk-lambda.yml/badge.svg)
 
 # Description
 
