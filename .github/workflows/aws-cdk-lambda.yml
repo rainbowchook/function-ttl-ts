@@ -1,0 +1,53 @@
+name: CDK Deployment
+
+on:
+  # push:
+  #   branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy-cdk:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Set up NodeJS
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        
+    - name: Install dependencies CDK and run unit tests
+      run: |
+        cd cdk
+        npm ci && npm cache clean --force
+        npm run test
+
+    - name: Build with TypeScript
+      env: 
+        NODE_ENV: production
+      run: |
+        cd cdk
+        npm run build
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ secrets.AWS_REGION }}  
+
+    - name: Install AWS CDK
+      run: npm install -g aws-cdk
+
+    - name: Synth CDK
+      env: 
+        DYNAMODB_TABLENAME: 'TTLTable-test-v1'
+        S3_BUCKETNAME: 'S3ReportBucket-test-v1'
+      run: cdk synth
+      working-directory: cdk
+
+    - name: Deploy CDK Stack
+      run: cdk deploy --require-approval never
