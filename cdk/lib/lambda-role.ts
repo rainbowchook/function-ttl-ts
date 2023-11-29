@@ -2,7 +2,6 @@ import { Construct } from 'constructs'
 import {
   Effect,
   ManagedPolicy,
-  Policy,
   PolicyDocument,
   PolicyStatement,
   Role,

@@ -1,12 +1,10 @@
-import { CfnOutput, RemovalPolicy, Stack, StackProps } from 'aws-cdk-lib'
+import { CfnOutput, Stack, StackProps } from 'aws-cdk-lib'
 import { Construct } from 'constructs'
 import { DynamoDB } from './dynamodb-create'
 import { LambdaRole } from './lambda-role'
 import { LambdaFn } from './lambda-function'
 import { Alarm, TreatMissingData } from 'aws-cdk-lib/aws-cloudwatch'
 import { ResultsS3Bucket } from './s3-bucket'
-import { FilterPattern, LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs'
-import { LambdaDestination } from 'aws-cdk-lib/aws-logs-destinations'
 import { DynamoEventSource } from 'aws-cdk-lib/aws-lambda-event-sources'
 import {
   FilterCriteria,
@@ -84,6 +82,18 @@ export class FunctionTTLProcessingStack extends Stack {
     // output the Lambda function name
     new CfnOutput(this, 'TTLProcessingLambdaOutput', {
       value: lambdaFunction.functionArn,
+    })
+    
+    // output the url for CloudWatch logs for the lambda
+    new CfnOutput(this, 'LambdaLogsUrl', {
+      exportName: 'LambdaLogs',
+      value: `https://console.aws.amazon.com/cloudwatch/home?region=${this.region}#logsV2:log-groups/log-group/$252Faws$252Flambda$252F${lambdaFunction.functionName}`
+    })
+
+    // output the AWS CLI command to put item into DynamoDB table
+    new CfnOutput(this, 'InsertItemWithTTLToDynamoDBCommand', {
+      exportName: 'InsertItemWithTTLToDynamoDBCommand',
+      value: `aws dynamodb put-item --table-name ${s3Bucket.bucketName} --item '{"id":{"S":"<Unique ID string>"},"ttl":{"N":"<UTC date string>"}}'`
     })
   }
 }

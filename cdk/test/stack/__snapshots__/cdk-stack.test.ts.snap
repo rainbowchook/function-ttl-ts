@@ -9,6 +9,43 @@ exports[`FunctionTTLProcessingStack resources created Resources created matches 
         "Ref": "TestDynamoDBTestDynamoDBTable67588611",
       },
     },
+    "InsertItemWithTTLToDynamoDBCommand": {
+      "Export": {
+        "Name": "InsertItemWithTTLToDynamoDBCommand",
+      },
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "aws dynamodb put-item --table-name ",
+            {
+              "Ref": "ReportS3BucketProjectS3Bucket985029D9",
+            },
+            " --item '{"id":{"S":"<Unique ID string>"},"ttl":{"N":"<UTC date string>"}}'",
+          ],
+        ],
+      },
+    },
+    "LambdaLogsUrl": {
+      "Export": {
+        "Name": "LambdaLogs",
+      },
+      "Value": {
+        "Fn::Join": [
+          "",
+          [
+            "https://console.aws.amazon.com/cloudwatch/home?region=",
+            {
+              "Ref": "AWS::Region",
+            },
+            "#logsV2:log-groups/log-group/$252Faws$252Flambda$252F",
+            {
+              "Ref": "LambdaFunctionLambda4835DFE3",
+            },
+          ],
+        ],
+      },
+    },
     "S3BucketName": {
       "Description": "S3 Bucket name",
       "Value": {
@@ -216,7 +253,7 @@ def submit_response(event: dict, context, response_status: str, error_message: s
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "b4df8631b33066548afe43bb7b47bcc952a4448db762d1d86831f211e3fe90d7.zip",
+          "S3Key": "94ab6842a66766850d165340209869703119dd7d2d0e100d12bab3954baaa385.zip",
         },
         "Description": "DynamoDB TTL Processing Lambda",
         "Environment": {
