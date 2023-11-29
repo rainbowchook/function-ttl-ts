@@ -11,7 +11,7 @@ export const handler: Handler = async (
   for (const record of event.Records) {
     console.log('Stream record: ', JSON.stringify(record, null, 2))
 
-    if (record.eventName === 'REMOVE' && record.userIdentity) {
+    if (isTTLEventRecord(record)) {
       const item = aws.DynamoDB.Converter.unmarshall(
         record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
       )
@@ -29,6 +29,9 @@ export const handler: Handler = async (
 
   return 'TTL processing completed'
 }
+
+const isTTLEventRecord = (record: DynamoDBRecord): boolean =>
+  record.eventName === 'REMOVE' && record.userIdentity ? true : false
 
 const putRecordInS3 = async (item: { [key: string]: any }) => {
   const bucketName: string = process.env.BUCKET_NAME!
