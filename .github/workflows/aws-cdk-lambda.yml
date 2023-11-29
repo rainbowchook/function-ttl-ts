@@ -50,4 +50,4 @@ jobs:
       working-directory: cdk
 
     - name: Deploy CDK Stack
-      run: cdk deploy --require-approval never
+      run: cdk deploy --app cdk.out FunctionTTLProcessingStack --require-approval never
