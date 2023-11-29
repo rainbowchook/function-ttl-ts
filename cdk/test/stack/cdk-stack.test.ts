@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib'
 import { Capture, Match, Template } from 'aws-cdk-lib/assertions'
 import * as Cdk from '../../lib/cdk-stack'
-import { Runtime } from 'aws-cdk-lib/aws-lambda'
+import { Runtime, StartingPosition } from 'aws-cdk-lib/aws-lambda'
 import { BillingMode, StreamViewType } from 'aws-cdk-lib/aws-dynamodb'
 
 // Instantiate the cdk app
@@ -20,24 +20,28 @@ describe('FunctionTTLProcessingStack resources created', () => {
     expect(template.toJSON()).toMatchSnapshot()
   })
 
-  //Fine-grained testing
-  test('Specified resources created', () => {
-    template.resourceCountIs('AWS::DynamoDB::Table', 1)
+  test('S3 Bucket created', () => {
     template.resourceCountIs('AWS::S3::Bucket', 1)
+    template.resourceCountIs('Custom::S3BucketNotifications', 1)
+  })
+
+  test('DynamoDB table created', () => {
+    template.resourceCountIs('AWS::DynamoDB::Table', 1)
+  })
+
+  test('Lambda function created', () => {
     template.resourcePropertiesCountIs(
       'AWS::Lambda::Function',
       { Runtime: Runtime.NODEJS_16_X.name, Environment: Match.anyValue() },
       1
     )
+    template.resourceCountIs('AWS::Lambda::Function', 3)
+    template.resourceCountIs('Custom::LogRetention', 1)
+    template.resourceCountIs('AWS::Lambda::EventSourceMapping', 1)
+  })
 
-    template.hasResourceProperties('AWS::DynamoDB::Table', {})
-    template.hasResourceProperties('AWS::S3::Bucket', {})
-    template.hasResourceProperties('Custom::S3BucketNotifications', {})
-    template.hasResourceProperties('AWS::IAM::Role', {})
-    template.hasResourceProperties('AWS::IAM::Policy', {})
-    template.hasResourceProperties('AWS::Lambda::Function', {})
-    template.hasResourceProperties('Custom::LogRetention', {})
-    template.hasResourceProperties('AWS::CloudWatch::Alarm', {})
+  test('CloudWatch Alarm created', () => {
+    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
   })
 })
 
@@ -61,8 +65,6 @@ describe('DynamoDB tests', () => {
 
 describe('Lambda tests', () => {
   test('Lambda function has correct properties', () => {
-    console.log(template.findResources('AWS::DynamoDB::Table', {}))
-
     const dependencyCapture = new Capture()
     template.hasResource('AWS::Lambda::Function', {
       Properties: {
@@ -88,7 +90,8 @@ describe('Lambda tests', () => {
     expect(dependencyCapture.asArray().length).toBeGreaterThanOrEqual(1)
   })
 
-  test('Lambda function execution role has correct IAM permissions', () => {
+  test('Lambda function execution role has correct IAM permissions - write to CloudWatch & put object in S3', () => {
+    console.log(template.findResources('AWS::IAM::Role'))
     const roleCapture = new Capture()
     const actionCapture = new Capture()
     template.hasResourceProperties('AWS::IAM::Role', {
@@ -144,7 +147,7 @@ describe('Lambda tests', () => {
     expect(actionCapture.asString()).toMatch(/s3:PutObject/)
   })
 
-  test('Lambda has correct event source mapping', () => {
+  test('Lambda has correct event source mapping - filters for DynamoDB TTL event stream', () => {
     template.hasResourceProperties('AWS::Lambda::EventSourceMapping', {
       FilterCriteria: {
         Filters: [
@@ -161,6 +164,45 @@ describe('Lambda tests', () => {
     })
   })
 
+  test('Lambda event source mapping correctly configured to process DynamoDB stream events', () => {
+    template.hasResourceProperties('AWS::Lambda::EventSourceMapping', {
+      MaximumRetryAttempts: 10,
+      StartingPosition: StartingPosition.TRIM_HORIZON,
+    })
+  })
+
+  test('Lambda role has IAM policy to read DynamoDB stream', () => {
+    const roleCapture = new Capture()
+    template.hasResourceProperties('AWS::IAM::Policy', {
+      PolicyDocument: Match.objectLike({
+        Statement: Match.arrayWith([
+          Match.objectEquals({
+            Action: 'dynamodb:ListStreams',
+            Effect: 'Allow',
+            Resource: '*',
+          }),
+          Match.objectLike({
+            Action: Match.arrayWith([
+              'dynamodb:DescribeStream',
+              'dynamodb:GetRecords',
+              'dynamodb:GetShardIterator',
+            ]),
+            Effect: 'Allow',
+            Resource: {
+              'Fn::GetAtt': Match.arrayWith([
+                Match.stringLikeRegexp('DynamoDBTable'),
+                'StreamArn',
+              ]),
+            },
+          }),
+        ]),
+      }),
+      Roles: [ { Ref: roleCapture } ]
+    })
+
+    expect(roleCapture.asString().match(/LambdaRole/)).not.toBe(null)
+  })
+
   test('Lambda not running in VPC', () => {
     template.hasResource('AWS::Lambda::Function', {
       Vpc: Match.absent(),
@@ -168,6 +210,46 @@ describe('Lambda tests', () => {
   })
 })
 
-describe('S3 tests', () => {})
+describe('S3 tests', () => {
+  test('S3 bucket has correct properties', () => {
+    template.hasResourceProperties('AWS::S3::Bucket', {
+      BucketEncryption: Match.objectLike({
+        ServerSideEncryptionConfiguration: Match.arrayWith([
+          {
+            ServerSideEncryptionByDefault: Match.objectEquals({
+              SSEAlgorithm: 'AES256',
+            }),
+          },
+        ]),
+      }),
+    })
+  })
+})
 
-describe('CloudWatch tests', () => {})
+describe('CloudWatch tests', () => {
+  test('CloudWatch Alarm created', () => {
+    template.resourceCountIs('AWS::CloudWatch::Alarm', 1)
+  })
+
+  test('Cloudwatch Alarm for lambda configured with correct metrics', () => {
+    const resourceCapture = new Capture()
+    template.hasResourceProperties('AWS::CloudWatch::Alarm', {
+      ComparisonOperator: 'GreaterThanOrEqualToThreshold',
+      DatapointsToAlarm: 1,
+      Dimensions: Match.arrayWith([
+        Match.objectLike({
+          Name: 'FunctionName',
+          Value: Match.objectEquals({
+            Ref: resourceCapture,
+          }),
+        }),
+      ]),
+      EvaluationPeriods: 1,
+      MetricName: 'Duration',
+      Period: 300,
+      Statistic: 'Maximum',
+      Threshold: 60000,
+      TreatMissingData: 'ignore',
+    })
+  })
+})
