@@ -1,6 +1,10 @@
-# function-ttl-go
+# function-ttl-ts
+
+![Deploy CDK](https://github.com/rainbowchook/function-ttl-ts/blob/main/.github/workflows/aws-cdk-lambda.yml/badge.svg)
 
 # Description
+
+This is a CDK project that synthesies a CloudFormation template to provision AWS infrastructure.  
 
 CDK project written in TypeScript - deploys the following stack:
 
