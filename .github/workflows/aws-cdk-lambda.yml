@@ -44,8 +44,8 @@ jobs:
 
     - name: Synth CDK
       env: 
-        DYNAMODB_TABLENAME: 'TTLTable-test-v1'
-        S3_BUCKETNAME: 'S3ReportBucket-test-v1'
+        DYNAMODB_TABLENAME: 'TTLTable-v3'
+        S3_BUCKETNAME: 'test-report-bucket-v3'
       run: cdk synth
       working-directory: cdk
 
