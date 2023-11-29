@@ -6,7 +6,7 @@ export class ResultsS3Bucket extends Construct {
   public readonly s3Bucket
   constructor(scope: Construct, id: string) {
     super(scope, id)
-    const bucketName = 'test-report-bucket-v3'
+    const bucketName = process.env.S3_BUCKETNAME || 'test-report-bucket-v3'
     const s3Bucket = new Bucket(this, 'ProjectS3Bucket', {
       bucketName,
       eventBridgeEnabled: true,

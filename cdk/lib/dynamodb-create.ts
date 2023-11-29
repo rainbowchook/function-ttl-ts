@@ -12,7 +12,7 @@ export class DynamoDB extends Construct {
   public readonly table: ITable
   constructor(scope: Construct, id: string) {
     super(scope, id)
-    const tableName = 'TTLTable-v3'
+    const tableName = process.env.DYNAMODB_TABLENAME || 'TTLTable-v3'
     const table = new Table(this, 'TestDynamoDBTable', {
       tableName,
       partitionKey: {
