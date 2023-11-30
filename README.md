@@ -19,7 +19,7 @@ This project is intended to be sample code only.  Not for use in production.
 
 DynamoDB items will be archived to an S3 bucket.  The Lambda function is triggered by DynamoDB TTL events and puts expired items into the S3 bucket as JSON objects.
 
-This CDK project will deploys the following stack to your AWS cloud environment:
+This CDK project will deploy the following stack to your AWS cloud environment:
 
 - DynamoDB table with TTL attribute configured
 - S3 Bucket
