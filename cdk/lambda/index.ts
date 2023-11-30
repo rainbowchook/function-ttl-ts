@@ -12,15 +12,7 @@ export const handler: Handler = async (
     console.log('Stream record: ', JSON.stringify(record, null, 2))
 
     if (isTTLEventRecord(record)) {
-      const item = aws.DynamoDB.Converter.unmarshall(
-        record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
-      )
-      const tableName: string = process.env.DYNAMODB_TABLE_NAME!
-
-      // TTL processing logic
-      console.log(
-        `Item with ID ${item.id} has been deleted due to TTL expiry from ${tableName}`
-      )
+      const item = parseTTLEventRecord(record)
 
       // Put the record into S3
       await putRecordInS3(item)
@@ -32,6 +24,22 @@ export const handler: Handler = async (
 
 const isTTLEventRecord = (record: DynamoDBRecord): boolean =>
   record.eventName === 'REMOVE' && record.userIdentity ? true : false
+
+const parseTTLEventRecord = (
+  record: DynamoDBRecord
+): { [key: string]: any } => {
+  const item = aws.DynamoDB.Converter.unmarshall(
+    record.dynamodb?.OldImage as aws.DynamoDB.AttributeMap
+  )
+  const tableName: string = process.env.DYNAMODB_TABLE_NAME!
+
+  // TTL processing logic
+  console.log(
+    `Item with ID ${item.id} has been deleted due to TTL expiry from ${tableName}`
+  )
+
+  return item
+}
 
 const putRecordInS3 = async (item: { [key: string]: any }) => {
   const bucketName: string = process.env.BUCKET_NAME!
