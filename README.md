@@ -48,8 +48,8 @@ npm run build
 
 ## References
 
-[Archiving DynamoDB TTL Items with Streams and Lambda](https://medium.com/@leeroy.hannigan/archiving-dynamodb-ttl-items-with-streams-and-lambda-17a8a4c20151)
-[Automatically Archive Items to S3 Using DynamoDB Time to Live (TTL) with AWS Lambda and Amazon Kinesis Firehose](https://aws.amazon.com/blogs/database/automatically-archive-items-to-s3-using-dynamodb-time-to-live-with-aws-lambda-and-amazon-kinesis-firehose/)
-[Working With Read and Write Operations > DynamoDB API > Working with Items](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
-[Using DynamoDB Time-to-Live (TTL)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-before-you-start.html)
-[DynamoDB Streams and Time to Live](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-streams.html)
+* [Archiving DynamoDB TTL Items with Streams and Lambda](https://medium.com/@leeroy.hannigan/archiving-dynamodb-ttl-items-with-streams-and-lambda-17a8a4c20151)
+* [Automatically Archive Items to S3 Using DynamoDB Time to Live (TTL) with AWS Lambda and Amazon Kinesis Firehose](https://aws.amazon.com/blogs/database/automatically-archive-items-to-s3-using-dynamodb-time-to-live-with-aws-lambda-and-amazon-kinesis-firehose/)
+* [Working With Read and Write Operations > DynamoDB API > Working with Items](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/WorkingWithItems.html)
+* [Using DynamoDB Time-to-Live (TTL)](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-before-you-start.html)
+* [DynamoDB Streams and Time to Live](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-streams.html)
