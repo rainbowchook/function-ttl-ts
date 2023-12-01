@@ -18,7 +18,8 @@ This CDK TypeScript project is intended to be sample code only. Not for use in p
 
 ## Description
 
-In this project, DynamoDB Time to Live (TTL), DynamoDB Streams and AWS Lambda are used to simplify archiving data, reduce DynamoDB storage costs, and reduce code complexity. Lambda event filtering is applied to the Lambda event source mapping, which works by identifying JSON patterns in a stream event, of which Lambda is a stream consumer, thereby preventing unwanted invocations of the archive Lambda function.
+In this project, DynamoDB Time to Live (TTL), DynamoDB Streams and AWS Lambda are used to simplify archiving data, reduce DynamoDB storage costs, and reduce code complexity. In this use case, the Lambda function archives data to an S3 storage bucket. 
+ Lambda event filtering is applied to the Lambda event source mapping, which works by identifying JSON patterns in a stream event, of which Lambda is a stream consumer, thereby preventing unwanted invocations of the archive Lambda function.
 
 In the following diagram, you can see how a [Time to Live deleted item is consumed by a Lambda function using streams and event filters](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-streams.html):
 
