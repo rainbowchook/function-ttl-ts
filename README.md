@@ -58,7 +58,7 @@ The following JSON shows the relevant portion of a single streams record.
 
 This CDK project will deploy the following stack to your AWS cloud environment:
 
-- **DynamoDB table** with TTL attribute, `ttl`, and one partition key, `id`, configured; and stream-enabled with `StreamViewType.NEW_AND_OLD_IMAGES`
+- **DynamoDB table** stream-enabled and configured with TTL attribute, `ttl`, and one partition key, `id`
 - **S3 Bucket** for data archival
 - **Lambda function** triggered by the DynamoDB event source, filtering for TTL events to put as JSON objects in the S3 bucket.
 - **Lambda execution role** with policies for CloudWatch log access, and DynamoDB stream read permissions and S3 PutObject permissions granted.
@@ -208,11 +208,11 @@ On successful deployment, the following info are output on the screen:
 
 ## Testing
 
-[It may take up to 48 hours for a TTL expired item to be deleted.](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/howitworks-ttl.html)
-
-> Depending on the size and activity level of a table, the actual delete operation of an expired item can vary. Because TTL is meant to be a background process, the nature of the capacity used to expire and delete items via TTL is variable (but free of charge). TTL typically deletes expired items within 48 hours of expiration.
-
 ### Actual Event Testing
+
+It may take up to 48 hours for a TTL expired item to be deleted:
+
+> [Depending on the size and activity level of a table, the actual delete operation of an expired item can vary. Because TTL is meant to be a background process, the nature of the capacity used to expire and delete items via TTL is variable (but free of charge). TTL typically deletes expired items within 48 hours of expiration.](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/howitworks-ttl.html)
 
 1. In the shell terminal for Mac or Linux system, run `date +%s`.
 2. Run the AWS CLI command output to screen on successful deployment of the CDK app:
@@ -245,7 +245,7 @@ Simulated events do not pass through lambda event filtering as the lambda functi
       "eventName": "REMOVE",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
-      "awsRegion": <AWS_REGION>,
+      "awsRegion": "<AWS_REGION>",
       "dynamodb": {
         "ApproximateCreationDateTime": 1700617129,
         "Keys": {
@@ -276,7 +276,7 @@ Simulated events do not pass through lambda event filtering as the lambda functi
       "eventName": "REMOVE",
       "eventVersion": "1.1",
       "eventSource": "aws:dynamodb",
-      "awsRegion": <AWS_REGION>,
+      "awsRegion": "<AWS_REGION>",
       "dynamodb": {
         "ApproximateCreationDateTime": 1700617150,
         "Keys": {
@@ -392,7 +392,7 @@ REPORT RequestId: xxxxxx	Duration: 1033.79 ms	Billed Duration: 1034 ms	Memory Si
 { "id": "TestId1", "ttl": 1700615599 }
 ```
 
-The UTC string can be converted back to local time format:
+The UTC string can be converted back to human readable time format:
 
 ```sh
 $  date -r <UTC_TIMESTRING> '+%m/%d/%Y:%H:%M:%S'
