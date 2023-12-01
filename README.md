@@ -188,7 +188,9 @@ To synthesise the CloudFormation template for this CDK app, run `cdk synth`.
 
 ## Deploy
 
-To deploy from the shell terminal, run the following command `cdk deploy --require-approval never` to deploy the stack to your AWS account. The `---require-approval never` flag will skip prompts to approve security-related changes before deployment, which is useful for CI/CD pipelines, like the GitHub Action step in [.github/workflows/aws-cdk-lambda.yml](.github/workflows/aws-cdk-lambda.yml). If using a specific AWS CLI profile e.g. prod, specify the `--profile prod` flag.
+To deploy from the shell terminal, run the following command `cdk deploy --require-approval never` to deploy the stack to your AWS account. The `---require-approval never` flag will skip prompts to approve security-related changes before deployment, which is useful for CI/CD pipelines, like the GitHub Action step in [.github/workflows/aws-cdk-lambda.yml](.github/workflows/aws-cdk-lambda.yml). 
+
+If deploying the stack to a target environment other than that of the default AWS profile, set the AWS CDK CLI environment variables, CDK_DEFAULT_ACCOUNT and CDK_DEFAULT_REGION, by specifying a custom profile e.g. prod, specify the `--profile prod` flag.
 
 ```
 cdk deploy
